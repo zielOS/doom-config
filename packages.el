@@ -67,3 +67,7 @@
 
 ;; application-packages
 (package! app-launcher :recipe (:host github :repo "SebastienWae/app-launcher"))
+
+;; docker-packages
+(package! docker)
+(package! dockerfile-mode)

@@ -151,6 +151,8 @@
 
 (use-package! org
   :config
+  (setq org-startup-with-inline-images t)
+  (setq org-pretty-entities t)
   (setq org-highlight-links
         '(bracket angle plain tag date footnote))
   ;; Setup custom links
