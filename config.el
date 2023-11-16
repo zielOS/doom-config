@@ -153,6 +153,8 @@
   :config
   (setq org-startup-with-inline-images t)
   (setq org-pretty-entities t)
+  (setq org-hide-emphasis-markers t)
+  ;;(setq org-pretty-entities-include-sub-superscript t)
   (setq org-highlight-links
         '(bracket angle plain tag date footnote))
   ;; Setup custom links
