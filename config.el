@@ -48,6 +48,14 @@
                                                (kbd "g <down>")  'centaur-tabs-forward-group
                                                (kbd "g <up>")    'centaur-tabs-backward-group)
 
+(use-package! citar
+  :no-require
+  :custom
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography))
+
 (setq fancy-splash-image "~/.config/doom/doom-logo.png")
 
 (map! :leader
@@ -218,12 +226,3 @@
   (map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
   (map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
   (map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement))
-
-(after! org
-  (require 'org-ref))
-
-(use-package! org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :config
-  (require 'org-ref))

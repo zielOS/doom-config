@@ -69,10 +69,6 @@
 (package! app-launcher :recipe (:host github :repo "SebastienWae/app-launcher"))
 (package! pdf-tools)
 
-;; reference-packages
-(package! org-ref)
-(package! org-roam-bibtex :recipe (:host github :repo "org-roam/org-roam-bibtex"))
-
 ;; docker-packages
 (package! docker)
 (package! dockerfile-mode)

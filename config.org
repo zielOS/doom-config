@@ -63,6 +63,18 @@
                                                (kbd "g <up>")    'centaur-tabs-backward-group)
 #+end_src
 
+* Citar
+
+#+begin_src emacs-lisp
+(use-package! citar
+  :no-require
+  :custom
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography))
+#+end_src
+
 * Dashboard
 
 #+begin_src emacs-lisp
@@ -349,22 +361,4 @@ o
   (map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
   (map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
   (map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement))
-#+end_src
-
-* Reference Management
-** org-ref
-
-#+begin_src emacs-lisp
-(after! org
-  (require 'org-ref))
-#+end_src
-
-** org-roam-bibtex
-
-#+begin_src emacs-lisp
-(use-package! org-roam-bibtex
-  :after org-roam
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :config
-  (require 'org-ref))
 #+end_src
