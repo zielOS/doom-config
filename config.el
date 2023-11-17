@@ -23,6 +23,16 @@
       (funcall ,FUNCTION)
     (delete-frame)))
 
+(use-package! pdf-tools
+  :load-path "site-lisp/pdf-tools/lisp"
+  :magic ("%PDF" . pdf-view-mode)
+  :config
+  (pdf-tools-install :no-query)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  (setq pdf-view-resize-factor 1.1)
+  (setq pdf-view-use-unicode-ligther nil))
+
 (setq centaur-tabs-set-bar 'over
       centaur-tabs-set-icons t
       centaur-tabs-gray-out-icons 'buffer
@@ -152,6 +162,7 @@
 (use-package! org
   :config
   (setq org-startup-with-inline-images t)
+  (setq org-directory "~/org/")
   (setq org-pretty-entities t)
   (setq org-hide-emphasis-markers t)
   ;;(setq org-pretty-entities-include-sub-superscript t)
@@ -207,3 +218,12 @@
   (map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
   (map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
   (map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement))
+
+(after! org
+  (require 'org-ref))
+
+(use-package! org-roam-bibtex
+  :after org-roam
+  :hook (org-roam-mode . org-roam-bibtex-mode)
+  :config
+  (require 'org-ref))
