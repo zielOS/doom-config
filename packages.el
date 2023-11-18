@@ -1,5 +1,6 @@
 ;; theme-packages
 (package! catppuccin-theme)
+(package! doom-themes)
 
 ;; tabs-packages
 (package! centaur-tabs)

@@ -248,8 +248,7 @@ ln -s ~/.local/share/Trash .
 * Theme
 
 #+BEGIN_SRC emacs-lisp
-(setq doom-theme 'catppuccin
-      doom-themes-treemacs-enable-variable-pitch nil)
+(setq doom-theme 'catppuccin)
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
 #+END_SRC
@@ -282,7 +281,8 @@ o
 (use-package! doom-modeline
   :config
   (setq doom-modeline-persp-name t
-        doom-modeline-height 35))
+        doom-modeline-height 35
+        display-time-mode t))
 #+end_src
 
 * Org

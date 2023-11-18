@@ -144,8 +144,7 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-(setq doom-theme 'catppuccin
-      doom-themes-treemacs-enable-variable-pitch nil)
+(setq doom-theme 'catppuccin)
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
 
@@ -165,7 +164,8 @@
 (use-package! doom-modeline
   :config
   (setq doom-modeline-persp-name t
-        doom-modeline-height 35))
+        doom-modeline-height 35
+        display-time-mode t))
 
 (use-package! org
   :config
