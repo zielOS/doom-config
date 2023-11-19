@@ -179,42 +179,43 @@
   ;; Setup custom links
   (+org-init-custom-links-h))
 
-(use-package! org-modern
-  :hook (org-mode . org-modern-mode)
-  :config
-  (setq
-   ;; Edit settings
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
-   ;; Appearance
-   org-modern-radio-target    '("❰" t "❱")
-   org-modern-internal-target '("↪ " t "")
-   org-modern-todo nil
-   org-modern-tag nil
-   org-modern-timestamp t
-   org-modern-statistics nil
-   org-modern-progress nil
-   org-modern-priority nil
-   org-modern-horizontal-rule "──────────"
-   org-modern-hide-stars "·"
-   ;;org-modern-star ["⁖"]
-   org-modern-keyword "‣"
-   org-modern-list '((43 . "•")
-                     (45 . "–")
-                     (42 . "↪")))
-  (custom-set-faces!
-    `((org-modern-tag)
-      :background ,(doom-blend (doom-color 'blue) (doom-color 'bg) 0.1)
-      :foreground ,(doom-color 'grey))
-    `((org-modern-radio-target org-modern-internal-target)
-      :inherit 'default :foreground ,(doom-color 'blue)))
-  )
-
 (setq org-src-window-setup 'current-window)
 
 (use-package! ob-python
   :commands org-babel-execute:python)
+
+(defvar my/current-line '(0 . 0)
+  "(start . end) of current line in current buffer")
+(make-variable-buffer-local 'my/current-line)
+
+(defun my/unhide-current-line (limit)
+  "Font-lock function"
+  (let ((start (max (point) (car my/current-line)))
+        (end (min limit (cdr my/current-line))))
+    (when (< start end)
+      (remove-text-properties start end '(invisible t display "" composition ""))
+      (goto-char limit)
+      t)))
+
+(defun my/refontify-on-linemove ()
+  "Post-command-hook"
+  (let* ((start (line-beginning-position))
+         (end (line-beginning-position 2))
+         (needs-update (not (equal start (car my/current-line)))))
+    (setq my/current-line (cons start end))
+    (when needs-update
+      (font-lock-fontify-block 2))))
+
+(defun my/markdown-unhighlight ()
+  "Install"
+  (font-lock-add-keywords nil '((my/unhide-current-line)) t)
+  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
+
+(require 'markdown-mode)
+(add-hook 'markdown-mode-hook #'my/markdown-unhighlight)
+(add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
+
+(add-hook 'org-mode-hook #'my/markdown-unhighlight)
 
 (setq lsp-pylsp-plugins-flake8-max-line-length 88)
 
