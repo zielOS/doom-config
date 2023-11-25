@@ -148,9 +148,9 @@
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
 
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 27)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 27)
-      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32))
+(setq doom-font (font-spec :family "JetBrainsMono NF" :size 27)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono NF" :size 27)
+      doom-big-font (font-spec :family "JetBrainsMono NF" :size 32))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
@@ -177,7 +177,9 @@
   (setq org-highlight-links
         '(bracket angle plain tag date footnote))
   ;; Setup custom links
-  (+org-init-custom-links-h))
+  (+org-init-custom-links-h)
+  ;;(require 'org-pretty-table)
+  )
 
 (setq org-src-window-setup 'current-window)
 
@@ -216,6 +218,10 @@
 (add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
 
 (add-hook 'org-mode-hook #'my/markdown-unhighlight)
+
+(use-package! org-xournalpp
+  :config
+  (add-hook 'org-mode-hook 'org-xournalpp-mode))
 
 (setq lsp-pylsp-plugins-flake8-max-line-length 88)
 

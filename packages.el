@@ -56,6 +56,13 @@
 (package! org-appear)
 (package! all-the-icons)
 (package! org-super-agenda)
+;;(package! org-pretty-table :recipe (:local-repo "lisp/org-pretty-table"))
+(package! org-xournalpp
+  :recipe (:host gitlab
+           :repo "vherrmann/org-xournalpp"
+           :files ("resources" "*.el")))
+
+
 
 ;; python-packages
 (package! anaconda-mode)

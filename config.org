@@ -256,9 +256,9 @@ ln -s ~/.local/share/Trash .
 * Fonts
 
 #+BEGIN_SRC emacs-lisp
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 27)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 27)
-      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32))
+(setq doom-font (font-spec :family "JetBrainsMono NF" :size 27)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono NF" :size 27)
+      doom-big-font (font-spec :family "JetBrainsMono NF" :size 32))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
@@ -274,7 +274,6 @@ ln -s ~/.local/share/Trash .
 	      #'display-line-numbers-mode)
 #+end_src
 
-o
 * Modeline
 
 #+begin_src emacs-lisp
@@ -299,7 +298,9 @@ o
   (setq org-highlight-links
         '(bracket angle plain tag date footnote))
   ;; Setup custom links
-  (+org-init-custom-links-h))
+  (+org-init-custom-links-h)
+  ;;(require 'org-pretty-table)
+  )
 
 #+end_src
 
@@ -311,6 +312,7 @@ o
 (use-package! ob-python
   :commands org-babel-execute:python)
 #+end_src
+
 
 ** Disable org-pretty-entities at current line
 
@@ -347,6 +349,14 @@ o
 (add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
 
 (add-hook 'org-mode-hook #'my/markdown-unhighlight)
+#+end_src
+
+** org-xournalpp
+
+#+begin_src emacs-lisp
+(use-package! org-xournalpp
+  :config
+  (add-hook 'org-mode-hook 'org-xournalpp-mode))
 #+end_src
 
 * Python
