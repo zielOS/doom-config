@@ -63,6 +63,16 @@
            :files ("resources" "*.el")))
 
 
+;; cc-packages
+(package! cmake-mode)
+(package! company-glsl)
+(package! cuda-mode)
+(package! demangle-mode)
+(package! disaster)
+(package! glsl-mode)
+(package! modern-cpp-font-lock)
+(package! opencl-mode)
+(package! ccls)
 
 ;; python-packages
 (package! anaconda-mode)

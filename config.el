@@ -233,3 +233,7 @@
   (map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
   (map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
   (map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement))
+
+(after! ccls
+  (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
+  (set-lsp-priority! 'ccls 2)) ; optional as ccls is the default in Doom
