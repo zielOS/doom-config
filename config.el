@@ -1,53 +1,3 @@
-(defmacro bookmark-selector-launcher (NAME WIDTH HEIGHT FUNCTION)
-  "Define a launcher command.
-
-  Bookmark-selector is a package revolving around using emacs
-  outside of emacs to browse your bookmarks. Most of the commands
-  defined, consist of opening an emacs frame with only a
-  minibuffer, with a specified NAME, WIDTH and HEIGHT and inside it
-  calling FUNCTION and deleting the frame after the function
-  completes or is canceled."
-  `(with-selected-frame (make-frame '((name . ,NAME)
-                                      (minibuffer . only)
-                                      (width . ,WIDTH)
-                                      (height . ,HEIGHT)))
-     (unwind-protect
-         (funcall ,FUNCTION)
-       (delete-frame))))
-
-(defun emacs-run-launcher ()
-  "Create and select a frame called emacs-run-launcher which consists only of a minibuffer and has specific dimensions. Runs app-launcher-run-app on that frame, which is an emacs command that prompts you to select an app and open it in a dmenu like behaviour. Delete the frame after that command has exited"
-  (interactive)
-  (bookmark-selector-launcher "emacs-run-launcher" 59 20 'app-launcher-run-app)
-  (unwind-protect
-      (funcall ,FUNCTION)
-    (delete-frame)))
-
-(use-package! pdf-tools
-  :load-path "site-lisp/pdf-tools/lisp"
-  :magic ("%PDF" . pdf-view-mode)
-  :config
-  (pdf-tools-install :no-query)
-  (setq-default pdf-view-display-size 'fit-page)
-  (setq pdf-annot-activate-created-annotations t)
-  (setq pdf-view-resize-factor 1.1)
-  (setq pdf-view-use-unicode-ligther nil))
-
-(setq centaur-tabs-set-bar 'over
-      centaur-tabs-set-icons t
-      centaur-tabs-gray-out-icons 'buffer
-      centaur-tabs-height 24
-      centaur-tabs-set-modified-marker t
-      centaur-tabs-style "bar"
-      centaur-tabs-modified-marker "•")
-(map! :leader
-      :desc "Toggle tabs globally" "t c" #'centaur-tabs-mode
-      :desc "Toggle tabs local display" "t C" #'centaur-tabs-local-mode)
-(evil-define-key 'normal centaur-tabs-mode-map (kbd "g <right>") 'centaur-tabs-forward        ; default Doom binding is 'g t'
-                                               (kbd "g <left>")  'centaur-tabs-backward       ; default Doom binding is 'g T'
-                                               (kbd "g <down>")  'centaur-tabs-forward-group
-                                               (kbd "g <up>")    'centaur-tabs-backward-group)
-
 (use-package! citar
   :no-require
   :custom
@@ -55,8 +5,6 @@
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
   (citar-bibliography org-cite-global-bibliography))
-
-(setq fancy-splash-image "~/.config/doom/doom-logo.png")
 
 (map! :leader
       (:prefix ("d" . "dired")
@@ -218,22 +166,3 @@
 (add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
 
 (add-hook 'org-mode-hook #'my/markdown-unhighlight)
-
-(use-package! org-xournalpp
-  :config
-  (add-hook 'org-mode-hook 'org-xournalpp-mode))
-
-(setq lsp-pylsp-plugins-flake8-max-line-length 88)
-
-(use-package! python-black
-  :demand t
-  :after python
-  :config
-  (add-hook! 'python-mode-hook #'python-black-on-save-mode)
-  (map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
-  (map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
-  (map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement))
-
-(after! ccls
-  (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
-  (set-lsp-priority! 'ccls 2)) ; optional as ccls is the default in Doom
