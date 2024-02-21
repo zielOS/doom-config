@@ -1,3 +1,20 @@
+(beacon-mode 1)
+
+(setq centaur-tabs-set-bar 'over
+      centaur-tabs-set-icons t
+      centaur-tabs-gray-out-icons 'buffer
+      centaur-tabs-height 24
+      centaur-tabs-set-modified-marker t
+      centaur-tabs-style "bar"
+      centaur-tabs-modified-marker "•")
+(map! :leader
+      :desc "Toggle tabs globally" "t c" #'centaur-tabs-mode
+      :desc "Toggle tabs local display" "t C" #'centaur-tabs-local-mode)
+(evil-define-key 'normal centaur-tabs-mode-map (kbd "g <right>") 'centaur-tabs-forward        ; default Doom binding is 'g t'
+                                               (kbd "g <left>")  'centaur-tabs-backward       ; default Doom binding is 'g T'
+                                               (kbd "g <down>")  'centaur-tabs-forward-group
+                                               (kbd "g <up>")    'centaur-tabs-backward-group)
+
 (use-package! citar
   :no-require
   :custom
@@ -115,19 +132,79 @@
         doom-modeline-height 35
         display-time-mode t))
 
-(use-package! org
-  :config
-  (setq org-startup-with-inline-images t)
-  (setq org-directory "~/org/")
-  (setq org-pretty-entities t)
-  (setq org-hide-emphasis-markers t)
-  ;;(setq org-pretty-entities-include-sub-superscript t)
-  (setq org-highlight-links
-        '(bracket angle plain tag date footnote))
-  ;; Setup custom links
-  (+org-init-custom-links-h)
-  ;;(require 'org-pretty-table)
-  )
+(map! :leader
+      :desc "Org babel tangle" "m b" #'org-babel-tangle)
+(after! org
+  (setq org-directory "~/org/"
+        org-default-notes-file (expand-file-name "notes.org" org-directory)
+        org-ellipsis " ▼ "
+        org-superstar-headline-bullets-list '("◉" "●" "○" "◆" "●" "○" "◆")
+        org-superstar-itembullet-alist '((?+ . ?➤) (?- . ?✦)) ; changes +/- symbols in item lists
+        org-log-done 'time
+        org-hide-emphasis-markers t
+        ;; ex. of org-link-abbrev-alist in action
+        ;; [[arch-wiki:Name_of_Page][Description]]
+        org-link-abbrev-alist    ; This overwrites the default Doom org-link-abbrev-list
+          '(("google" . "http://www.google.com/search?q=")
+            ("arch-wiki" . "https://wiki.archlinux.org/index.php/")
+            ("ddg" . "https://duckduckgo.com/?q=")
+            ("wiki" . "https://en.wikipedia.org/wiki/"))
+        org-table-convert-region-max-lines 20000
+        org-todo-keywords        ; This overwrites the default Doom org-todo-keywords
+          '((sequence
+             "TODO(t)"           ; A task that is ready to be tackled
+             "BLOG(b)"           ; Blog writing assignments
+             "GYM(g)"            ; Things to accomplish at the gym
+             "PROJ(p)"           ; A project that contains other tasks
+             "VIDEO(v)"          ; Video assignments
+             "WAIT(w)"           ; Something is holding up this task
+             "|"                 ; The pipe necessary to separate "active" states and "inactive" states
+             "DONE(d)"           ; Task has been completed
+             "CANCELLED(c)" )))) ; Task has been cancelled
+
+(after! org
+  (setq org-agenda-files '("~/org/agenda.org")))
+
+(setq
+   ;; org-fancy-priorities-list '("[A]" "[B]" "[C]")
+   ;; org-fancy-priorities-list '("❗" "[B]" "[C]")
+   org-fancy-priorities-list '("🟥" "🟧" "🟨")
+   org-priority-faces
+   '((?A :foreground "#ff6c6b" :weight bold)
+     (?B :foreground "#98be65" :weight bold)
+     (?C :foreground "#c678dd" :weight bold))
+   org-agenda-block-separator 8411)
+
+(setq org-agenda-custom-commands
+      '(("v" "A better agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (tags "PRIORITY=\"B\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
+          (tags "PRIORITY=\"C\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Low-priority unfinished tasks:")))
+          (tags "customtag"
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Tasks marked with customtag:")))
+
+          (agenda "")
+          (alltodo "")))))
+
+(after! org
+  (setq org-roam-directory "~/nc/Org/roam/"
+        org-roam-graph-viewer "/usr/bin/brave"))
+
+(map! :leader
+      (:prefix ("n r" . "org-roam")
+       :desc "Completion at point" "c" #'completion-at-point
+       :desc "Find node"           "f" #'org-roam-node-find
+       :desc "Show graph"          "g" #'org-roam-graph
+       :desc "Insert node"         "i" #'org-roam-node-insert
+       :desc "Capture to node"     "n" #'org-roam-capture
+       :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
 
 (setq org-src-window-setup 'current-window)
 
@@ -166,3 +243,14 @@
 (add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
 
 (add-hook 'org-mode-hook #'my/markdown-unhighlight)
+
+(define-globalized-minor-mode global-rainbow-mode rainbow-mode
+  (lambda ()
+    (when (not (memq major-mode
+                (list 'org-agenda-mode)))
+     (rainbow-mode 1))))
+(global-rainbow-mode 1 )
+
+(map! :leader
+      :desc "Zap to char"    "z" #'zap-to-char
+      :desc "Zap up to char" "Z" #'zap-up-to-char)
