@@ -109,6 +109,17 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+(setq evil-split-window-below t
+      evil-vsplit-window-right t)
+
+(setq evil-want-fine-undo t)
+
+(setq evil-ex-substitute-global t)
+
+(setq evil-kill-on-visual-paste nil)
+
+(setq evil-disable-insert-state-bindings t)
+
 (setq doom-theme 'catppuccin)
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
@@ -211,6 +222,13 @@
 (use-package! ob-python
   :commands org-babel-execute:python)
 
+(add-to-list 'org-structure-template-alist
+             '("elisp" . "src elisp\n"))
+(add-to-list 'org-structure-template-alist
+             '("lua" . "src lua\n"))
+(add-to-list 'org-structure-template-alist
+             '("nix" . "src nix\n"))
+
 (defvar my/current-line '(0 . 0)
   "(start . end) of current line in current buffer")
 (make-variable-buffer-local 'my/current-line)
@@ -250,6 +268,28 @@
                 (list 'org-agenda-mode)))
      (rainbow-mode 1))))
 (global-rainbow-mode 1 )
+
+(setq vterm-always-compile-module t)
+(setq vterm-kill-buffer-on-exit t)
+
+(after! vterm
+  (define-key vterm-mode-map (kbd "<C-backspace>") (lambda () (interactive) (vterm-send-key (kbd "C-w")))))
+
+(after! vterm
+  (setf (alist-get "woman" vterm-eval-cmds nil nil #'equal)
+        '((lambda (topic)
+            (woman topic))))
+  (setf (alist-get "magit-status" vterm-eval-cmds nil nil #'equal)
+        '((lambda (path)
+            (magit-status path))))
+  (setf (alist-get "dired" vterm-eval-cmds nil nil #'equal)
+        '((lambda (dir)
+            (dired dir)))))
+
+(use-package! multi-vterm
+  :after vterm)
+
+(setq vterm-shell "/usr/bin/zsh")
 
 (map! :leader
       :desc "Zap to char"    "z" #'zap-to-char
