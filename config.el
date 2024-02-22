@@ -137,130 +137,25 @@
 (remove-hook! '(org-mode-hook text-mode-hook conf-mode-hook)
 	      #'display-line-numbers-mode)
 
+(require 'ob-async)
+(setq org-babel-default-header-args:jupyter-python
+      '((:results . "both")
+	;; This seems to lead to buffer specific sessions!
+	(:session . (lambda () (buffer-file-name)))
+	(:kernel . "python3")
+	(:pandoc . "t")
+	(:exports . "both")
+	(:cache .   "no")
+	(:noweb . "no")
+	(:hlines . "no")
+	(:tangle . "no")
+	(:eval . "never-export")))
+
 (use-package! doom-modeline
   :config
   (setq doom-modeline-persp-name t
         doom-modeline-height 35
         display-time-mode t))
-
-(map! :leader
-      :desc "Org babel tangle" "m b" #'org-babel-tangle)
-(after! org
-  (setq org-directory "~/org/"
-        org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-ellipsis " ▼ "
-        org-superstar-headline-bullets-list '("◉" "●" "○" "◆" "●" "○" "◆")
-        org-superstar-itembullet-alist '((?+ . ?➤) (?- . ?✦)) ; changes +/- symbols in item lists
-        org-log-done 'time
-        org-hide-emphasis-markers t
-        ;; ex. of org-link-abbrev-alist in action
-        ;; [[arch-wiki:Name_of_Page][Description]]
-        org-link-abbrev-alist    ; This overwrites the default Doom org-link-abbrev-list
-          '(("google" . "http://www.google.com/search?q=")
-            ("arch-wiki" . "https://wiki.archlinux.org/index.php/")
-            ("ddg" . "https://duckduckgo.com/?q=")
-            ("wiki" . "https://en.wikipedia.org/wiki/"))
-        org-table-convert-region-max-lines 20000
-        org-todo-keywords        ; This overwrites the default Doom org-todo-keywords
-          '((sequence
-             "TODO(t)"           ; A task that is ready to be tackled
-             "BLOG(b)"           ; Blog writing assignments
-             "GYM(g)"            ; Things to accomplish at the gym
-             "PROJ(p)"           ; A project that contains other tasks
-             "VIDEO(v)"          ; Video assignments
-             "WAIT(w)"           ; Something is holding up this task
-             "|"                 ; The pipe necessary to separate "active" states and "inactive" states
-             "DONE(d)"           ; Task has been completed
-             "CANCELLED(c)" )))) ; Task has been cancelled
-
-(after! org
-  (setq org-agenda-files '("~/org/agenda.org")))
-
-(setq
-   ;; org-fancy-priorities-list '("[A]" "[B]" "[C]")
-   ;; org-fancy-priorities-list '("❗" "[B]" "[C]")
-   org-fancy-priorities-list '("🟥" "🟧" "🟨")
-   org-priority-faces
-   '((?A :foreground "#ff6c6b" :weight bold)
-     (?B :foreground "#98be65" :weight bold)
-     (?C :foreground "#c678dd" :weight bold))
-   org-agenda-block-separator 8411)
-
-(setq org-agenda-custom-commands
-      '(("v" "A better agenda view"
-         ((tags "PRIORITY=\"A\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
-          (tags "PRIORITY=\"B\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
-          (tags "PRIORITY=\"C\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Low-priority unfinished tasks:")))
-          (tags "customtag"
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Tasks marked with customtag:")))
-
-          (agenda "")
-          (alltodo "")))))
-
-(after! org
-  (setq org-roam-directory "~/nc/Org/roam/"
-        org-roam-graph-viewer "/usr/bin/brave"))
-
-(map! :leader
-      (:prefix ("n r" . "org-roam")
-       :desc "Completion at point" "c" #'completion-at-point
-       :desc "Find node"           "f" #'org-roam-node-find
-       :desc "Show graph"          "g" #'org-roam-graph
-       :desc "Insert node"         "i" #'org-roam-node-insert
-       :desc "Capture to node"     "n" #'org-roam-capture
-       :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
-
-(setq org-src-window-setup 'current-window)
-
-(use-package! ob-python
-  :commands org-babel-execute:python)
-
-(use-package! org-tempo
-  :after org
-  :init
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("els" . "src elisp"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
-
-(defvar my/current-line '(0 . 0)
-  "(start . end) of current line in current buffer")
-(make-variable-buffer-local 'my/current-line)
-
-(defun my/unhide-current-line (limit)
-  "Font-lock function"
-  (let ((start (max (point) (car my/current-line)))
-        (end (min limit (cdr my/current-line))))
-    (when (< start end)
-      (remove-text-properties start end '(invisible t display "" composition ""))
-      (goto-char limit)
-      t)))
-
-(defun my/refontify-on-linemove ()
-  "Post-command-hook"
-  (let* ((start (line-beginning-position))
-         (end (line-beginning-position 2))
-         (needs-update (not (equal start (car my/current-line)))))
-    (setq my/current-line (cons start end))
-    (when needs-update
-      (font-lock-fontify-block 2))))
-
-(defun my/markdown-unhighlight ()
-  "Install"
-  (font-lock-add-keywords nil '((my/unhide-current-line)) t)
-  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
-
-(require 'markdown-mode)
-(add-hook 'markdown-mode-hook #'my/markdown-unhighlight)
-(add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
-
-(add-hook 'org-mode-hook #'my/markdown-unhighlight)
 
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()

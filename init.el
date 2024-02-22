@@ -163,12 +163,7 @@
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org
-        +dragndrop
-        +gnuplot
-        +ipython
         +jupyter
-        +noter
-        +roam2
         +pretty)
        (python
         +cython

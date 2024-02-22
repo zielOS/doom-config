@@ -270,6 +270,28 @@ Some of them are quite useful, and I normally use them in the DE.
 	      #'display-line-numbers-mode)
 #+end_src
 
+* JUPYTER
+
+
+#+begin_src emacs-lisp
+(require 'ob-async)
+(setq org-babel-default-header-args:jupyter-python
+      '((:results . "both")
+	;; This seems to lead to buffer specific sessions!
+	(:session . (lambda () (buffer-file-name)))
+	(:kernel . "python3")
+	(:pandoc . "t")
+	(:exports . "both")
+	(:cache .   "no")
+	(:noweb . "no")
+	(:hlines . "no")
+	(:tangle . "no")
+	(:eval . "never-export")))
+#+end_src
+
+#+RESULTS:
+: ((:results . both) (:session lambda nil (buffer-file-name)) (:kernel . python3) (:pandoc . t) (:exports . both) (:cache . no) (:noweb . no) (:hlines . no) (:tangle . no) (:eval . never-export))
+
 * Modeline
 
 #+begin_src emacs-lisp
@@ -284,113 +306,153 @@ Some of them are quite useful, and I normally use them in the DE.
 ** basics
 
 #+begin_src emacs-lisp
-(map! :leader
-      :desc "Org babel tangle" "m b" #'org-babel-tangle)
-(after! org
-  (setq org-directory "~/org/"
-        org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-ellipsis " ▼ "
-        org-superstar-headline-bullets-list '("◉" "●" "○" "◆" "●" "○" "◆")
-        org-superstar-itembullet-alist '((?+ . ?➤) (?- . ?✦)) ; changes +/- symbols in item lists
-        org-log-done 'time
-        org-hide-emphasis-markers t
-        ;; ex. of org-link-abbrev-alist in action
-        ;; [[arch-wiki:Name_of_Page][Description]]
-        org-link-abbrev-alist    ; This overwrites the default Doom org-link-abbrev-list
-          '(("google" . "http://www.google.com/search?q=")
-            ("arch-wiki" . "https://wiki.archlinux.org/index.php/")
-            ("ddg" . "https://duckduckgo.com/?q=")
-            ("wiki" . "https://en.wikipedia.org/wiki/"))
-        org-table-convert-region-max-lines 20000
-        org-todo-keywords        ; This overwrites the default Doom org-todo-keywords
-          '((sequence
-             "TODO(t)"           ; A task that is ready to be tackled
-             "BLOG(b)"           ; Blog writing assignments
-             "GYM(g)"            ; Things to accomplish at the gym
-             "PROJ(p)"           ; A project that contains other tasks
-             "VIDEO(v)"          ; Video assignments
-             "WAIT(w)"           ; Something is holding up this task
-             "|"                 ; The pipe necessary to separate "active" states and "inactive" states
-             "DONE(d)"           ; Task has been completed
-             "CANCELLED(c)" )))) ; Task has been cancelled
-
-#+end_src
-
-** org-agenda
-
-#+begin_src emacs-lisp
-(after! org
-  (setq org-agenda-files '("~/org/agenda.org")))
-
-(setq
-   ;; org-fancy-priorities-list '("[A]" "[B]" "[C]")
-   ;; org-fancy-priorities-list '("❗" "[B]" "[C]")
-   org-fancy-priorities-list '("🟥" "🟧" "🟨")
-   org-priority-faces
-   '((?A :foreground "#ff6c6b" :weight bold)
-     (?B :foreground "#98be65" :weight bold)
-     (?C :foreground "#c678dd" :weight bold))
-   org-agenda-block-separator 8411)
-
-(setq org-agenda-custom-commands
-      '(("v" "A better agenda view"
-         ((tags "PRIORITY=\"A\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
-          (tags "PRIORITY=\"B\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
-          (tags "PRIORITY=\"C\""
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Low-priority unfinished tasks:")))
-          (tags "customtag"
-                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Tasks marked with customtag:")))
-
-          (agenda "")
-          (alltodo "")))))
-#+end_src
-
-** org-roam
-
-#+begin_src emacs-lisp
-(after! org
-  (setq org-roam-directory "~/nc/Org/roam/"
-        org-roam-graph-viewer "/usr/bin/brave"))
-
-(map! :leader
-      (:prefix ("n r" . "org-roam")
-       :desc "Completion at point" "c" #'completion-at-point
-       :desc "Find node"           "f" #'org-roam-node-find
-       :desc "Show graph"          "g" #'org-roam-graph
-       :desc "Insert node"         "i" #'org-roam-node-insert
-       :desc "Capture to node"     "n" #'org-roam-capture
-       :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
-
-
-#+end_src
-
-** org-babel
-
-#+begin_src emacs-lisp
-(setq org-src-window-setup 'current-window)
-
-(use-package! ob-python
-  :commands org-babel-execute:python)
-#+end_src
-
-** org-tempo
-
-company + tng causes problems with org-tempo
-
-#+begin_src emacs-lisp
-(use-package! org-tempo
-  :after org
+(use-package! org
+  :mode ("\\.org\\'" . org-mode)
   :init
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("els" . "src elisp"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
-#+end_src
+  (add-hook 'org-src-mode-hook #'(lambda () (flycheck-mode 0)))
+  (add-hook 'org-mode-hook #'(lambda () (flycheck-mode 0)))
+  (map! :map org-mode-map
+        "M-n" #'outline-next-visible-heading
+        "M-p" #'outline-previous-visible-heading
+        "C-c ;" nil)
+  (setq org-src-window-setup 'current-window
+        org-return-follows-link t
+        org-confirm-elisp-link-function nil
+        org-confirm-shell-link-function nil
+        org-use-speed-commands t
+        org-catch-invisible-edits 'show
+        ;; Use with consel-org-goto (gh .)
+        org-goto-interface 'outline-path-completion)
+  (setq org-file-apps '((auto-mode . emacs)
+                        (directory . emacs)
+                        ("\\.mm\\'" . default)
+                        ("\\.x?html?\\'" . default)
+                        ("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link))))))
+
+(after! org
+  ;; FIXME: Don't know why this isn't loaded automatically...
+  (require 'ob-async)
+  (require 'jupyter)
+  ;; Clear Doom's default templates
+  (setq org-capture-templates '())
+
+  (add-to-list 'org-capture-templates `("l" "Listen" entry (file ,(concat org-directory "org-roam2/orgzly/listen.org"))
+                                        "* TODO %?\n%i"))
+  (add-to-list 'org-capture-templates `("i" "Incoming" entry (file ,(concat org-directory "org-roam2/orgzly/incoming.org"))
+                                        "* %?\n%i"))
+
+  ;; (add-to-list 'org-latex-packages-alist "\\usepackage{braket}")
+
+  ;; http://kitchingroup.cheme.cmu.edu/blog/2015/01/04/Redirecting-stderr-in-org-mode-shell-blocks/
+  ;; NOTE: This will affect (break) tangled output. Use directly on top of code blocks when needed instead.
+  ;; TODO: Figure out how to keep this without adding it to tangled output.
+  ;; (setq org-babel-default-header-args:sh
+  ;;       '((:prologue . "exec 2>&1") (:epilogue . ":")))
+
+  (setq org-babel-default-header-args:jupyter-julia '((:kernel . "julia-1.6")
+                                                      (:display . "text/plain")
+                                                      (:async . "yes")))
+
+  (setq org-confirm-babel-evaluate nil
+        org-use-property-inheritance t
+        org-export-use-babel nil
+        org-pretty-entities nil
+        org-use-speed-commands t
+        org-return-follows-link t
+        org-outline-path-complete-in-steps nil
+        org-ellipsis ""
+        org-fontify-whole-heading-line t
+        org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t
+        org-image-actual-width nil
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-startup-indented t
+        org-src-preserve-indentation t
+        org-edit-src-content-indentation 0
+        org-adapt-indentation nil
+        org-hide-emphasis-markers t
+        org-special-ctrl-a/e t
+        org-special-ctrl-k t
+        org-yank-adjusted-subtrees t
+        org-src-window-setup 'reorganize-frame
+        org-src-ask-before-returning-to-edit-buffer nil
+        org-insert-heading-respect-content nil)
+
+  ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+  ;; (add-hook 'org-babel-after-execute-hook 'org-toggle-latex-fragment 'append)
+
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
+  (add-to-list 'org-structure-template-alist '("jl" . "src jupyter-julia"))
+  (add-to-list 'org-structure-template-alist '("r" . "src rust"))
+  (add-to-list 'org-structure-template-alist '("py" . "src jupyter-python"))
+
+  (setq org-refile-use-outline-path 'file
+        org-outline-path-complete-in-steps nil
+        org-refile-allow-creating-parent-nodes 'confirm)
+
+  ;; (setq org-format-latex-options
+  ;;       (quote (:foreground default
+  ;;               :background default
+  ;;               :scale 2.0
+  ;;               :matchers ("begin" "$1" "$" "$$" "\\(" "\\["))))
+
+  ;; Colorize org babel output. Without this color codes are left in the output.
+  (defun my/display-ansi-colors ()
+    (interactive)
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max))))
+
+  (add-hook 'org-babel-after-execute-hook #'my/display-ansi-colors)
+
+  (advice-add 'org-meta-return :override #'my/org-meta-return)
+  (setq org-tags-match-list-sublevels 'indented)
+
+  (setq org-image-actual-width nil)
+
+  (setq org-agenda-files '())
+
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"
+           "WAIT(w)"
+           "HOLD(h)"
+           "IDEA(i)"
+           "DELEGATED(e)"
+           "|"
+           "DONE(d)"
+           "KILL(k)")
+          )
+        org-todo-keyword-faces
+        '(("WAIT" . +org-todo-onhold)
+          ("HOLD" . +org-todo-onhold)
+          ("DELEGATED" . +org-todo-onhold)
+          ("KILL" . +org-todo-cancel)))
+
+  ;; Update parent TODO state when all children TODOs are done
+  ;; NOTE: Only works if the parent has a "[/]" or "[%]" in the heading!!
+  ;; https://orgmode.org/manual/Breaking-Down-Tasks.html#Breaking-Down-Tasks
+  (defun org-summary-todo (n-done n-not-done)
+    "Switch entry to DONE when all subentries are done, to TODO otherwise."
+    (let (org-log-done org-log-states)  ; turn off logging
+      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+  (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+  ;; (add-to-list 'org-agenda-files "~/Sync/org-roam/orgzly/boox-incoming.org")
+  (add-to-list 'org-agenda-files "~/Sync/org-roam2/orgzly/pixel-incoming.org")
+  (add-to-list 'org-agenda-files "~/Sync/org-roam2/orgzly/incoming.org")
+
+  (add-to-list 'org-latex-default-packages-alist "\\PassOptionsToPackage{hyphens}{url}")
+  (require 'ox-latex))
+
+;; Setup syntax highlighting for code block pdf exports
+;; (after! ox-latex
+;;   (setq org-latex-pdf-process
+;;         '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+;;         org-latex-listings 'minted
+;;         org-latex-packages-alist '(("" "minted"))))#+end_src
 
 ** Disable org-pretty-entities at current line
 
