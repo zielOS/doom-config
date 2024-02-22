@@ -222,12 +222,12 @@
 (use-package! ob-python
   :commands org-babel-execute:python)
 
-(add-to-list 'org-structure-template-alist
-             '("elisp" . "src elisp\n"))
-(add-to-list 'org-structure-template-alist
-             '("lua" . "src lua\n"))
-(add-to-list 'org-structure-template-alist
-             '("nix" . "src nix\n"))
+(use-package! org-tempo
+  :after org
+  :init
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("els" . "src elisp"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
 
 (defvar my/current-line '(0 . 0)
   "(start . end) of current line in current buffer")
