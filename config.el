@@ -151,6 +151,9 @@
 	(:tangle . "no")
 	(:eval . "never-export")))
 
+(with-eval-after-load 'ob-jupyter
+ (org-babel-jupyter-aliases-from-kernelspecs))
+
 (use-package! doom-modeline
   :config
   (setq doom-modeline-persp-name t

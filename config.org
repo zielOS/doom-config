@@ -289,8 +289,12 @@ Some of them are quite useful, and I normally use them in the DE.
 	(:eval . "never-export")))
 #+end_src
 
+#+begin_src emacs-lisp
+(with-eval-after-load 'ob-jupyter
+ (org-babel-jupyter-aliases-from-kernelspecs))
+#+end_src
+
 #+RESULTS:
-: ((:results . both) (:session lambda nil (buffer-file-name)) (:kernel . python3) (:pandoc . t) (:exports . both) (:cache . no) (:noweb . no) (:hlines . no) (:tangle . no) (:eval . never-export))
 
 * Modeline
 
