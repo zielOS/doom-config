@@ -252,9 +252,9 @@ Some of them are quite useful, and I normally use them in the DE.
 * Fonts
 
 #+BEGIN_SRC emacs-lisp
-(setq doom-font (font-spec :family "JetBrainsMono NF" :size 27)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono NF" :size 27)
-      doom-big-font (font-spec :family "JetBrainsMono NF" :size 32))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 27)
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 27)
+      doom-big-font (font-spec :family "JetBrains Mono" :size 32))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
@@ -386,12 +386,6 @@ Some of them are quite useful, and I normally use them in the DE.
   ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   ;; (add-hook 'org-babel-after-execute-hook 'org-toggle-latex-fragment 'append)
 
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-  (add-to-list 'org-structure-template-alist '("jl" . "src jupyter-julia"))
-  (add-to-list 'org-structure-template-alist '("r" . "src rust"))
-  (add-to-list 'org-structure-template-alist '("py" . "src jupyter-python"))
-
   (setq org-refile-use-outline-path 'file
         org-outline-path-complete-in-steps nil
         org-refile-allow-creating-parent-nodes 'confirm)
@@ -493,6 +487,18 @@ Some of them are quite useful, and I normally use them in the DE.
 (add-hook 'markdown-mode-hook (lambda () (markdown-toggle-markup-hiding 1)))
 
 (add-hook 'org-mode-hook #'my/markdown-unhighlight)
+#+end_src
+
+** org-tempo
+
+#+begin_src emacs-lisp
+(after! org
+  (require 'org-tempo)
+  (pushnew! org-structure-template-alist
+            '("el" . "src emacs-lisp")
+            '("sh" . "src shell")
+            '("py" . "src python")))
+
 #+end_src
 
 * Rainbow Mode

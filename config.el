@@ -124,9 +124,9 @@
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
 
-(setq doom-font (font-spec :family "JetBrainsMono NF" :size 27)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono NF" :size 27)
-      doom-big-font (font-spec :family "JetBrainsMono NF" :size 32))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 27)
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 27)
+      doom-big-font (font-spec :family "JetBrains Mono" :size 32))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
@@ -159,6 +159,13 @@
   (setq doom-modeline-persp-name t
         doom-modeline-height 35
         display-time-mode t))
+
+(after! org
+  (require 'org-tempo)
+  (pushnew! org-structure-template-alist
+            '("el" . "src emacs-lisp")
+            '("sh" . "src shell")
+            '("py" . "src python")))
 
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()
