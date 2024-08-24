@@ -207,6 +207,19 @@
 
 (setq doom-modeline-enable-word-count t)
 
+(defun my-split-and-indirect-orgtree ()
+  "Splits window to the right and opens an org tree section in it"
+  (interactive)
+  (split-window-right)
+  (windmove-right)
+  (org-tree-to-indirect-buffer))
+
+(defun my-kill-and-unsplit-orgtree ()
+  "Kills the cloned buffer and deletes the window."
+  (interactive)
+  (kill-this-buffer)
+  (delete-window))
+
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()
     (when (not (memq major-mode

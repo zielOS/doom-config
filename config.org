@@ -554,6 +554,23 @@ Some of them are quite useful, and I normally use them in the DE.
 (setq doom-modeline-enable-word-count t)
 #+end_src
 
+#+begin_src emacs-lisp
+(defun my-split-and-indirect-orgtree ()
+  "Splits window to the right and opens an org tree section in it"
+  (interactive)
+  (split-window-right)
+  (windmove-right)
+  (org-tree-to-indirect-buffer))
+
+(defun my-kill-and-unsplit-orgtree ()
+  "Kills the cloned buffer and deletes the window."
+  (interactive)
+  (kill-this-buffer)
+  (delete-window))
+#+end_src
+
+
+
 
 * Rainbow Mode
 
