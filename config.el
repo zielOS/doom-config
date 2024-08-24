@@ -124,9 +124,9 @@
 (map! :leader
       :desc "Load new theme" "h t" #'counsel-load-theme)
 
-(setq doom-font (font-spec :family "JetBrains Mono" :size 27)
-      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 27)
-      doom-big-font (font-spec :family "JetBrains Mono" :size 32))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 36)
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 36)
+      doom-big-font (font-spec :family "JetBrains Mono" :size 40))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
@@ -166,6 +166,46 @@
             '("el" . "src emacs-lisp")
             '("sh" . "src shell")
             '("py" . "src python")))
+
+(after! org
+  (setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "Todo.org" "00 INBOX")
+         "* TODO %? \n %i ")
+        ("n" "Novel Note" entry (file+headline "~/org/outline.org" "Novel Inbox")
+         "* %?  \n  %i\n  %a "))))
+
+(after! org
+  (setq org-todo-keywords
+      '((sequence
+         "TODO(t)"  ; A task that needs doing & is ready to do
+         "PROJ(p)"  ; A project, which usually contains other tasks
+         "NEXT(n)"  ; A task that is in progress
+         "WAIT(t)"  ; Something external is holding up this task
+         "HOLD(h)"  ; This task is paused/on hold because of me
+         "OPEN(o)"  ; An open or ongoing loop
+         "|"
+         "DONE(d)"  ; Task successfully completed
+         "KILL(K)") ; Task was cancelled, aborted or is no longer applicable
+        (sequence
+         "[ ](T)"   ; A task that needs doing
+         "[-](S)"   ; Task is in progress
+         "[?](W)"   ; Task is being held up or paused
+         "|"
+         "[X](D)")  ; Task was completed
+        (sequence   ; adapted from Tony Ballantyne's writing methodology
+         "IDEA(i!)"
+         "WRITE(w!)"
+         "EDIT(e!)"
+         "WORKING(k!)"
+         "|"
+         "USED(u!/@)"))))
+
+(defun zz/adjust-org-company-backends ()
+  (remove-hook 'after-change-major-mode-hook '+company-init-backends-h)
+  (setq-local company-backends nil))
+(add-hook! org-mode (zz/adjust-org-company-backends))
+
+(setq doom-modeline-enable-word-count t)
 
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()
